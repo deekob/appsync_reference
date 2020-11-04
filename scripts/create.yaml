@@ -1,0 +1,19 @@
+config:
+  target: "{{ $processEnvironment.TARGET_URL }}"
+  phases:
+    - duration: 100
+      arrivalRate: 10
+  defaults:
+    headers:
+      x-api-key: "{{ $processEnvironment.API_KEY }}"
+      Content-Type: 'application/graphql'
+scenarios:
+  - flow:
+      - post:
+          url: '/'
+          json:
+            query: 'mutation CreateTodo($input: CreateTodoInput!) { createTodo(input: $input) { id } }'
+            variables:
+              input:
+                name: "some name"
+                description: "some description"
