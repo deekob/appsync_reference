@@ -7,7 +7,7 @@ import { FieldConfigProps } from './utils'
 import { CWConfig } from './cw-config'
 import { WafConfig } from './waf-config'
 
-export class AppsyncAtReinventStack extends cdk.Stack {
+export class AppsyncReferenceStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
 
@@ -20,7 +20,7 @@ export class AppsyncAtReinventStack extends cdk.Stack {
     pool.addClient('web', { preventUserExistenceErrors: true })
 
     const api = new appsync.GraphqlApi(this, 'API', {
-      name: 'reInvent2020API',
+      name: 'GraphQLAPI',
       schema: appsync.Schema.fromAsset('appsync/schema.graphql'),
       authorizationConfig: {
         defaultAuthorization: {
@@ -39,6 +39,13 @@ export class AppsyncAtReinventStack extends cdk.Stack {
         fieldLogLevel: appsync.FieldLogLevel.ALL,
       },
       xrayEnabled: true,
+    })
+
+    const cache = new appsync.CfnApiCache(this, 'cache', {
+      apiCachingBehavior: 'PER_RESOLVER_CACHING',
+      apiId: api.apiId,
+      ttl: 60,
+      type: 'LARGE',
     })
 
     const table = new db.Table(this, 'Table', {
@@ -64,6 +71,9 @@ export class AppsyncAtReinventStack extends cdk.Stack {
 
     fields.map((field) => createResolver(this, { api, field }))
 
+    new CWConfig(this, 'CWConfig', { api, fields })
+    const wafConfig = new WafConfig(this, 'WAFConfig', { api })
+
     // Outptus:
     new cdk.CfnOutput(this, 'Stack Region', { value: this.region })
     new cdk.CfnOutput(this, 'GraphQL API ID', { value: api.apiId })
@@ -71,6 +81,10 @@ export class AppsyncAtReinventStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'GraphQL API Key', { value: api.apiKey || 'n/a' })
     new cdk.CfnOutput(this, 'table', { value: table.tableName })
     new cdk.CfnOutput(this, 'function', { value: lambdaFunction.functionName })
+    new cdk.CfnOutput(this, 'acl ref', { value: wafConfig.acl.ref })
+    new cdk.CfnOutput(this, 'acl association', {
+      value: wafConfig.association.ref,
+    })
   }
 }
 

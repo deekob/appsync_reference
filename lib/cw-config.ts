@@ -36,7 +36,8 @@ export class CWConfig extends cdk.Construct {
         alarmName: `Latency-${typeName}-${fieldName}-Alarm`,
         evaluationPeriods: 2,
         metric: filter.metric(),
-        threshold: 300 * 1000000, // 300 ms to picoseconds
+        threshold: 300 * 1_000_000, // 300 ms to picoseconds
+        period: cdk.Duration.minutes(2),
         actionsEnabled: true,
         comparisonOperator:
           cw.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,

@@ -1,8 +1,8 @@
 config:
   target: "{{ $processEnvironment.TARGET_URL }}"
   phases:
-    - duration: 120
-      arrivalRate: 20
+    - duration: 240
+      arrivalRate: 10
   defaults:
     headers:
       x-api-key: "{{ $processEnvironment.API_KEY }}"

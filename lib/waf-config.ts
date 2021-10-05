@@ -41,7 +41,7 @@ export class WafConfig extends cdk.Construct {
           action: { block: {} },
           priority: 1,
           statement: {
-            rateBasedStatement: { aggregateKeyType: 'IP', limit: 1000 },
+            rateBasedStatement: { aggregateKeyType: 'IP', limit: 2000 },
           },
           visibilityConfig: {
             cloudWatchMetricsEnabled: true,
